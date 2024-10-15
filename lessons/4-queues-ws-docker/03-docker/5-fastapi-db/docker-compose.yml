@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: mongo:4.2
+    volumes:
+      - ./data:/data/db
+
+  web:
+    build: .
+    depends_on:
+      - mongodb
+    ports:
+      - "8000:8000"

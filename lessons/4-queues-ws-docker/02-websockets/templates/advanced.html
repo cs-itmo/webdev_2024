@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WebSocket Demo</title>
+</head>
+
+<style>
+    div {
+        margin: 5px;
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 5px;
+        width: 15%;
+        overflow: auto;
+    }
+
+    .error {
+        background-color: red;
+    }
+
+    .success {
+        background-color: #00ff00;
+    }
+</style>
+
+<body>
+    <h1>WebSocket Advanced Demo</h1>
+    <form id="form">
+        <input type="text" id="messageText" autocomplete="off" />
+        <button>Send Text</button>
+    </form>
+    <button id="binaryButton">Send Binary</button>
+    <ul id="messages"></ul>
+
+    <script>
+        var ws = new WebSocket("ws://localhost:8000/ws");
+        var form = document.getElementById('form');
+        var input = document.getElementById('messageText');
+        var messages = document.getElementById('messages');
+        var binaryButton = document.getElementById('binaryButton');
+
+        ws.onopen = function (event) {
+            var messageItem = document.createElement('div');
+            messageItem.classList.add('success');
+            messageItem.textContent = 'WebSocket connection opened';
+            messages.appendChild(messageItem);
+        };
+
+        ws.onmessage = function (event) {
+            var messageItem = document.createElement('div');
+            if (event.data instanceof Blob) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    messageItem.textContent = reader.result;
+                };
+                reader.readAsText(event.data);
+            } else {
+                messageItem.textContent = event.data;
+            }
+            messages.appendChild(messageItem);
+        };
+
+        ws.onclose = function (event) {
+            var messageItem = document.createElement('div');
+            messageItem.classList.add('error');
+            messageItem.textContent = 'WebSocket connection closed';
+            messages.appendChild(messageItem);
+        };
+
+        ws.onerror = function (event) {
+            var messageItem = document.createElement('div');
+            messageItem.classList.add('error');
+            messageItem.textContent = 'WebSocket error occurred';
+            messages.appendChild(messageItem);
+        };
+
+        form.onsubmit = function (event) {
+            event.preventDefault();
+            if (input.value !== '') {
+                ws.send(input.value);
+                input.value = '';
+            }
+        };
+
+        binaryButton.onclick = function () {
+            var binaryData = new Uint8Array([65, 66, 67]); // 'ABC' in binary
+            ws.send(binaryData);
+        };
+    </script>
+</body>
+
+</html>

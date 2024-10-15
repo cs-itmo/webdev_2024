@@ -1,0 +1,18 @@
+services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - html_app
+      - ws_app
+
+  html_app:
+    build: ./html_app
+    container_name: fastapi_html
+
+  ws_app:
+    build: ./ws_app
+    container_name: fastapi_ws
